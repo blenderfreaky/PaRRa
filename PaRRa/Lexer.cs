@@ -6,29 +6,20 @@ using System.Text.RegularExpressions;
 
 namespace PaRRa
 {
-    public class Lexer
+    public static class Lexer
     {
-        public string text;
-        public List<TokenType> tokens;
-
-        public Lexer(string text, List<TokenType> tokens)
-        {
-            this.text = text;
-            this.tokens = tokens;
-        }
-
-        public IEnumerable<(TokenType token, string text)> GetTokens()
+        public static IEnumerable<Token> GetTokens(string text, ICollection<TokenType> tokenTypes)
         {
             for (int i = 0; i < text.Length;)
             {
                 Dictionary<TokenType, (int length, string text)> matches = new Dictionary<TokenType, (int length, string text)>();
 
-                foreach (TokenType token in tokens)
+                foreach (TokenType tokenType in tokenTypes)
                 {
-                    Match match = token.regex.Match(text, i);
+                    Match match = tokenType.regex.Match(text, i);
                     if (match.Success)
                     {
-                        matches[token] = (match.Length, match.Value);
+                        matches[tokenType] = (match.Length, match.Value);
                     }
                 }
 
@@ -39,7 +30,7 @@ namespace PaRRa
                     if (match.Value.length >= max.Value.length) max = match;
                 }
                 i += max.Value.length;
-                yield return (max.Key, max.Value.text);
+                yield return new Token(max.Key, max.Value.text);
             }
         }
     }

@@ -37,16 +37,15 @@ namespace PaRRa_Test
             Terminal rparens = new Terminal(tokenList, "RParens", "\\)");
 
 
-            Lexer lexer = new Lexer($"frick as 5*4124-412*(42-124*4231)**2-5**(12+4*2);", tokenList);
-            List<(TokenType token, string text)> tokens = lexer.GetTokens().ToList();
-            tokens.ForEach(x => Console.WriteLine(x.token.name + ": " + x.text));
+            List<Token> tokens = Lexer.GetTokens($"frick as 5*4124-412*(42-124*4231)**2-5**(12+4*2);", tokenList).ToList();
+            tokens.ForEach(x => Console.WriteLine(x.tokenType.name + ": " + x.text));
             Console.WriteLine();
 
 
 
             GrammaticalPlaceholder PLACEHOLDER = new GrammaticalPlaceholder();
 
-            GrammaticalStructure POINTER;
+            // GrammaticalStructure POINTER;
 
             GrammaticalStructure ___EXPRESSION = new GrammaticalStructure("Expression'''")
             {
@@ -118,17 +117,17 @@ namespace PaRRa_Test
             };
             EXPRESSION.Replace(PLACEHOLDER, S);
 
-            Node node = new Node(S, tokens);
+            ParseTreeNode node = new ParseTreeNode(S, tokens);
             node.rule = new ProductionRule("Start", nodes => nodes[0].Eval());
-            node.Compile();
+            node.Parse();
 
             char indenter = '|';
-            string PrintNode(Node nodeToPrint, string indent = "") =>
+            string PrintNode(ParseTreeNode nodeToPrint, string indent = "") =>
                 nodeToPrint.IsTerminal
                 ? indent + "" + nodeToPrint.grammaticalStructure.name + "\n" +
-                  indent + "" + nodeToPrint.tokens.First().token.name + ": " + nodeToPrint.tokens.First().text                  
+                  indent + "" + nodeToPrint.tokens.First().tokenType.name + ": " + nodeToPrint.tokens.First().text                  
                 : indent + "" + nodeToPrint.grammaticalStructure.name + "\n" + 
-                  string.Join("\n", nodeToPrint.tree.Select(x => PrintNode(x, indent + (x.tree?.Length < 2 ? ' ' : '|'))).ToArray());
+                  string.Join("\n", nodeToPrint.tree.Select(x => PrintNode(x, indent + (x.tree?.Length < 2 ? ' ' : indenter))).ToArray());
             Console.WriteLine(PrintNode(node));
 
             Console.WriteLine(node.Eval());
