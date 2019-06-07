@@ -1,7 +1,5 @@
-﻿using PaRRa;
+﻿using PaRRa.Dynamic;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PaRRa_Test
 {
@@ -9,130 +7,143 @@ namespace PaRRa_Test
     {
         static void Main(string[] args)
         {
-            List<TokenType> tokenList = new List<TokenType>();
+            var languageGenerator = new LanguageGenerator()
+            .AddTokenType("identifier", "[a-zA-Z_][a-zA-Z_0-9]*")
+            .AddTokenType("number", "\\d*\\.?\\d+")
 
-            Terminal identifier = new Terminal(tokenList, "Identifier", "[a-zA-Z_][a-zA-Z_0-9]*");
-            Terminal number = new Terminal(tokenList, "Number", "\\d*\\.?\\d+");
+            .AddTokenType("add", "\\+")
+            .AddTokenType("subtract", "-")
+            .AddTokenType("multiply", "\\*")
+            .AddTokenType("divide", "/")
+            .AddTokenType("power", "\\*\\*")
 
-            Terminal add = new Terminal(tokenList, "Add", "\\+");
-            Terminal subtract = new Terminal(tokenList, "Subtract", "-");
-            Terminal multiply = new Terminal(tokenList, "Multiply", "\\*");
-            Terminal divide = new Terminal(tokenList, "Divide", "/");
-            Terminal power = new Terminal(tokenList, "Power", "\\*\\*");
+            .AddTokenType("increment", "#")
+            .AddTokenType("decrement", "=")
 
-            Terminal increment = new Terminal(tokenList, "Increment", "#");
-            Terminal decrement = new Terminal(tokenList, "Decrement", "=");
+            .AddTokenType("equality", "is")
 
-            Terminal equality = new Terminal(tokenList, "Equality", "is");
+            .AddTokenType("allocator", "pls")
+            .AddTokenType("assign", "as")
 
-            Terminal allocator = new Terminal(tokenList, "Allocator", "pls");
-            Terminal assign = new Terminal(tokenList, "Assign", "as");
+            .AddTokenType("semicolon", ";")
+            .AddTokenType("lbraces", "{")
+            .AddTokenType("rbraces", "}")
 
-            Terminal semicolon = new Terminal(tokenList, "Semicolon", ";");
-            Terminal lbraces = new Terminal(tokenList, "LBraces", "{");
-            Terminal rbraces = new Terminal(tokenList, "RBraces", "}");
+            .AddTokenType("separator", "and")
+            .AddTokenType("lparens", "\\(")
+            .AddTokenType("rparens", "\\)");
 
-            Terminal separator = new Terminal(tokenList, "separator", "and");
-            Terminal lparens = new Terminal(tokenList, "LParens", "\\(");
-            Terminal rparens = new Terminal(tokenList, "RParens", "\\)");
+            languageGenerator.AddGrammaticalStructure("Expression'''", structure => structure
+                .AddProductionRule("Assignment", rule => rule
+                    .SetDecomposition("identifier", "assign", "Expression")
+                    .SetEval(nodes => nodes[2].Eval())
+                )
+                .AddProductionRule("Number", rule => rule
+                    .SetDecomposition("number")
+                    .SetEval(nodes => Convert.ToDouble(nodes[0].tokens[0].text))
+                )
+                .AddProductionRule("Parenthesis", rule => rule
+                    .SetDecomposition("lparens", "Expression", "rparens")
+                    .SetEval(nodes => nodes[1].Eval())
+                )
+                .AddProductionRule("Method", rule => rule
+                    .SetDecomposition("identifier", "lparens", "Expression", "rparens")
+                    .SetEval(nodes => nodes[2].Eval())
+                )
+            );
 
 
-            List<Token> tokens = Lexer.GetTokens($"frick as 5*4124-412*(42-124*4231)**2-5**(12+4*2);", tokenList).ToList();
-            tokens.ForEach(x => Console.WriteLine(x.tokenType.name + ": " + x.text));
-            Console.WriteLine();
+            languageGenerator.AddGrammaticalStructure("Expression''", structure => structure
+                .AddProductionRule("BinaryPower", rule => rule
+                     .SetDecomposition("Expression'''", "power", "Expression''")
+                     .SetEval(nodes => Math.Pow(Convert.ToDouble(nodes[0].Eval()), Convert.ToDouble(nodes[2].Eval())))
+                )
+                .AddProductionRule("Fallthrough", rule => rule
+                     .SetDecomposition("Expression'''")
+                     .SetEval(nodes => nodes[0].Eval())
+                )
+            );
 
 
+            languageGenerator.AddGrammaticalStructure("Expression'", structure => structure
+                .AddProductionRule("BinaryMultiplication", rule => rule
+                    .SetDecomposition("Expression''", "multiply", "Expression'")
+                    .SetEval(nodes => Convert.ToDouble(nodes[0].Eval()) * Convert.ToDouble(nodes[2].Eval()))
+                )
+                .AddProductionRule("BinaryDivision", rule => rule
+                    .SetDecomposition("Expression''", "divide", "Expression'")
+                    .SetEval(nodes => Convert.ToDouble(nodes[0].Eval()) / Convert.ToDouble(nodes[2].Eval()))
+                )
+                .AddProductionRule("Fallthrough", rule => rule
+                    .SetDecomposition("Expression''")
+                    .SetEval(nodes => nodes[0].Eval())
+                )
+            );
 
-            GrammaticalPlaceholder PLACEHOLDER = new GrammaticalPlaceholder();
 
-            // GrammaticalStructure POINTER;
+            languageGenerator.AddGrammaticalStructure("Expression", structure => structure
+                .AddProductionRule("BinaryAddition", rule => rule
+                    .SetDecomposition("Expression'", "add", "Expression")
+                    .SetEval(nodes => Convert.ToDouble(nodes[0].Eval()) + Convert.ToDouble(nodes[2].Eval()))
+                )
+                .AddProductionRule("BinarySubtraction", rule => rule
+                    .SetDecomposition("Expression'", "subtract", "Expression")
+                    .SetEval(nodes => Convert.ToDouble(nodes[0].Eval()) - Convert.ToDouble(nodes[2].Eval()))
+                )
+                .AddProductionRule("UnaryPlus", rule => rule
+                    .SetDecomposition("add", "Expression")
+                    .SetEval(nodes => Convert.ToDouble(nodes[1].Eval()))
+                )
+                .AddProductionRule("UnaryMinus", rule => rule
+                    .SetDecomposition("subtract", "Expression")
+                    .SetEval(nodes => -Convert.ToDouble(nodes[1].Eval()))
+                )
+                .AddProductionRule("Brackets", rule => rule
+                    .SetDecomposition("lbraces", "Start", "rbraces")
+                    .SetEval(nodes => nodes[1].Eval())
+                )
+                .AddProductionRule("Fallthrough", rule => rule
+                    .SetDecomposition("Expression'")
+                    .SetEval(nodes => nodes[0].Eval())
+                )
+            );
 
-            GrammaticalStructure ___EXPRESSION = new GrammaticalStructure("Expression'''")
-            {
-                { "Assignment", nodes => nodes[2].Eval(),
-                    identifier , assign, PLACEHOLDER },
-                { "Number", nodes => Convert.ToDouble(nodes[0].tokens[0].text),
-                    number },
-                { "Parenthesis", nodes => nodes[1].Eval(),
-                    lparens, PLACEHOLDER, rparens },
-                { "Method", nodes => nodes[2].Eval(),
-                    identifier, lparens, PLACEHOLDER, rparens },
-            };
-            GrammaticalStructure __EXPRESSION = new GrammaticalStructure("Expression''")
-            {
-                { "BinaryPower", nodes => Math.Pow(Convert.ToDouble(nodes[0].Eval()), Convert.ToDouble(nodes[2].Eval())),
-                    ___EXPRESSION, power, null },
-                { "Fallthrough", nodes => nodes[0].Eval(),
-                    ___EXPRESSION },
-            };
 
-            GrammaticalStructure _EXPRESSION = new GrammaticalStructure("Expression'")
-            {
-                { "BinaryMultiplication", nodes => Convert.ToDouble(nodes[0].Eval()) * Convert.ToDouble(nodes[2].Eval()),
-                    __EXPRESSION, multiply, null },
-                { "BinaryDivision", nodes => Convert.ToDouble(nodes[0].Eval()) / Convert.ToDouble(nodes[2].Eval()),
-                    __EXPRESSION, divide, null },
-                { "Fallthrough", nodes => nodes[0].Eval(),
-                    __EXPRESSION },
-            };
-
-            GrammaticalStructure EXPRESSION = new GrammaticalStructure("Expression")
-            {
-                { "BinaryAddition", nodes => Convert.ToDouble(nodes[0].Eval()) + Convert.ToDouble(nodes[2].Eval()),
-                    _EXPRESSION, add, null },
-                { "BinarySubtraction", nodes => Convert.ToDouble(nodes[0].Eval()) - Convert.ToDouble(nodes[2].Eval()),
-                    _EXPRESSION, subtract, null },
-                { "UnaryPlus", nodes => Convert.ToDouble(nodes[1].Eval()),
-                    add, null },
-                { "UnaryMinus", nodes => -Convert.ToDouble(nodes[1].Eval()),
-                    subtract, null },
-                { "Brackets", nodes => nodes[1].Eval(),
-                    lbraces, PLACEHOLDER, rbraces },
-                {  "Fallthrough", nodes => nodes[0].Eval(),
-                    _EXPRESSION },
-            };
-            ___EXPRESSION.Replace(PLACEHOLDER, EXPRESSION);
-
-            GrammaticalStructure S = new GrammaticalStructure("Start")
-            {
-                { "ExpressionTerminal", nodes => nodes[0].Eval(),
-                    EXPRESSION, semicolon },
-                { "Expression", nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1,
-                    EXPRESSION, semicolon, null },
-                { "BlockStatementTerminal", nodes =>
+            languageGenerator.AddGrammaticalStructure("Start", structure => structure
+                .AddProductionRule("ExpressionTerminal", rule => rule
+					.SetDecomposition("Expression", "semicolon")
+					.SetEval(nodes => nodes[0].Eval())
+                )
+                .AddProductionRule("Expression", rule => rule
+					.SetDecomposition("Expression", "semicolon", "Start")
+					.SetEval(nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1)
+                )
+                .AddProductionRule("BlockStatementTerminal", rule => rule
+					.SetDecomposition("Expression", "Expression")
+					.SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();
                         return output;
-                    },
-                    EXPRESSION, EXPRESSION },
-                { "BlockStatement", nodes =>
+                    })
+                )
+                .AddProductionRule("BlockStatement", rule => rule
+					.SetDecomposition("Expression", "Expression", "Start")
+					.SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();
                         nodes[2].Eval();
                         return output;
-                    },
-                    EXPRESSION, EXPRESSION, null },
-            };
-            EXPRESSION.Replace(PLACEHOLDER, S);
+                    })
+                )
+            );
 
-            ParseTreeNode node = new ParseTreeNode(S, tokens);
-            node.rule = new ProductionRule("Start", nodes => nodes[0].Eval());
-            node.Parse();
+            languageGenerator.SetStartingGrammaticalStructure("Start");
 
-            char indenter = '|';
-            string PrintNode(ParseTreeNode nodeToPrint, string indent = "") =>
-                nodeToPrint.IsTerminal
-                ? indent + "" + nodeToPrint.grammaticalStructure.name + "\n" +
-                  indent + "" + nodeToPrint.tokens.First().tokenType.name + ": " + nodeToPrint.tokens.First().text                  
-                : indent + "" + nodeToPrint.grammaticalStructure.name + "\n" + 
-                  string.Join("\n", nodeToPrint.tree.Select(x => PrintNode(x, indent + (x.tree?.Length < 2 ? ' ' : indenter))).ToArray());
-            Console.WriteLine(PrintNode(node));
+            Language language = languageGenerator.Build();
 
-            Console.WriteLine(node.Eval());
-
-            Console.ReadLine();
+            Console.WriteLine(language.Parse("132+232/32*(123+42)-32**2;").Eval());
         }
     }
 }
