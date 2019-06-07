@@ -9,9 +9,16 @@ namespace PaRRa.Dynamic
 {
     public sealed class LanguageGenerator
     {
-        public Dictionary<string, Regex> tokenTypes;
-        public Dictionary<string, GrammaticalStructureGenerator> grammaticalStructures;
-        public string startingGrammaticalStructure;
+        internal Dictionary<string, Regex> tokenTypes;
+        internal Dictionary<string, GrammaticalStructureGenerator> grammaticalStructures;
+        internal string startingGrammaticalStructure;
+
+        public LanguageGenerator()
+        {
+            tokenTypes = new Dictionary<string, Regex>();
+            grammaticalStructures = new Dictionary<string, GrammaticalStructureGenerator>();
+            startingGrammaticalStructure = string.Empty;
+        }
 
         public LanguageGenerator AddTokenType(string name, string regex)
         {

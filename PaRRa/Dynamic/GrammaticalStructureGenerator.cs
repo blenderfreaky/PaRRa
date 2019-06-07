@@ -6,7 +6,12 @@ namespace PaRRa.Generator
 {
     public sealed class GrammaticalStructureGenerator
     {
-        public List<ProductionRuleGenerator> productionRules;
+        internal List<ProductionRuleGenerator> productionRules;
+
+        public GrammaticalStructureGenerator()
+        {
+            productionRules = new List<ProductionRuleGenerator>();
+        }
 
         public GrammaticalStructureGenerator AddProductionRule(string name, Func<ProductionRuleGenerator, ProductionRuleGenerator> productionRule)
         {

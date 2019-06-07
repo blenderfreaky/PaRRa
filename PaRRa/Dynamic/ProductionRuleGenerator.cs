@@ -6,9 +6,16 @@ namespace PaRRa.Generator
 {
     public sealed class ProductionRuleGenerator
     {
-        public string name;
-        public Func<ParseTreeNode[], object> _eval;
-        public string[] decomposition;
+        internal string name;
+        internal Func<ParseTreeNode[], object> _eval;
+        internal string[] decomposition;
+
+        public ProductionRuleGenerator()
+        {
+            name = string.Empty;
+            _eval = nodes => throw new NotImplementedException();
+            decomposition = new string[0];
+        }
 
         public ProductionRuleGenerator SetName(string name)
         {
