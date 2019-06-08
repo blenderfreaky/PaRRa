@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PaRRa
+namespace PaRRa.Parser
 {
     public struct TokenType
     {
@@ -30,17 +29,5 @@ namespace PaRRa
 
         public static bool operator !=(TokenType lhs, TokenType rhs) => lhs.GetHashCode() != rhs.GetHashCode() 
             || lhs.name != rhs.name || !EqualityComparer<Regex>.Default.Equals(lhs.regex, rhs.regex);
-    }
-
-    public struct Token
-    {
-        public TokenType tokenType;
-        public string text;
-
-        public Token(TokenType tokenType, string text)
-        {
-            this.tokenType = tokenType;
-            this.text = text;
-        }
     }
 }

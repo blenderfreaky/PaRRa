@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PaRRa.Parser;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PaRRa.Dynamic
@@ -16,7 +17,7 @@ namespace PaRRa.Dynamic
 
         public ParseTreeNode Parse(string code)
         {
-            IEnumerable<Token> tokens = Lexer.GetTokens(code, tokenTypes);
+            IEnumerable<Token> tokens = Token.GetTokens(code, tokenTypes);
 
             ParseTreeNode startingNode = new ParseTreeNode(startingGrammaticalStructure, tokens.ToList());
             startingNode.Parse();

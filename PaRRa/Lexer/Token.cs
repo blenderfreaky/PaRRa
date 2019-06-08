@@ -1,13 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PaRRa
+namespace PaRRa.Parser
 {
-    public static class Lexer
+    public struct Token
     {
+        public TokenType tokenType;
+        public string text;
+
+        public Token(TokenType tokenType, string text)
+        {
+            this.tokenType = tokenType;
+            this.text = text;
+        }
+
         public static IEnumerable<Token> GetTokens(string text, ICollection<TokenType> tokenTypes)
         {
             for (int i = 0; i < text.Length;)
