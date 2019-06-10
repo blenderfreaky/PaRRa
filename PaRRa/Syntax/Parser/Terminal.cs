@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace PaRRa.Parser
 {
-    public sealed class Terminal : GrammaticalStructure<ProductionRule>
+    public sealed class Terminal : GrammaticalStructure
     {
         public override bool IsTerminal => true;
         public override List<ProductionRule> ProductionRules => null;
