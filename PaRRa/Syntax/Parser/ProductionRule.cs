@@ -6,20 +6,20 @@ namespace PaRRa.Parser
 {
     public class ProductionRule
     {
-        public GrammaticalStructure[] decomposition;
+        public GrammaticalStructure[] Decomposition { get; set; }
         public string name;
 
         public GrammaticalStructure this[int index]
         {
-            get => decomposition[index];
-            set => decomposition[index] = value;
+            get => Decomposition[index];
+            set => Decomposition[index] = value;
         }
-        public int Length => decomposition.Length;
+        public int Length => Decomposition.Length;
 
         public ProductionRule(string name, params GrammaticalStructure[] decomposition)
         {
             this.name = name;
-            this.decomposition = decomposition;
+            this.Decomposition = decomposition;
         }
     }
 }
