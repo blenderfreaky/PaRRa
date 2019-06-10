@@ -18,5 +18,9 @@ namespace PaRRa.Parser
             this.name = name;
             ProductionRules = productionRules ?? throw new ArgumentException("Production Rules can't be empty. Consider using the Terminal class");
         }
+        internal GrammaticalStructure(string name = "")
+        {
+            this.name = name;
+        }
     }
 }
