@@ -3,9 +3,10 @@ using System.Text.RegularExpressions;
 
 namespace PaRRa.Parser
 {
-    public sealed class Terminal : GrammaticalStructure
+    public sealed class Terminal : GrammaticalStructure<ProductionRule>
     {
-        protected override List<ProductionRule> ProductionRules => null;
+        public override bool IsTerminal => true;
+        public override List<ProductionRule> ProductionRules => null;
         public TokenType TokenType { get; }
 
         public Terminal(TokenType token)
