@@ -23,8 +23,6 @@ namespace PaRRa.Parser
             tree = null;
         }
 
-        public object Eval() => rule.Eval(tree);
-
         public int Parse()
         {
             if (!tokens.Any()) return 0;
@@ -46,13 +44,13 @@ namespace PaRRa.Parser
 
             List<(List<ParseTreeNode> tree, int length, ProductionRule rule)> options = new List<(List<ParseTreeNode> tree, int length, ProductionRule rule)>();
 
-            foreach (ProductionRule productionRule in grammaticalStructure)
+            foreach (ProductionRule productionRule in grammaticalStructure.ProductionRules)
             {
                 List<ParseTreeNode> recursiveTree = new List<ParseTreeNode>();
                 IEnumerable<Token> recursiveTokens = tokens;
                 int recursiveLength = 0;
 
-                foreach (GrammaticalStructure grammaticalStructure in productionRule)
+                foreach (GrammaticalStructure grammaticalStructure in productionRule.Decomposition)
                 {
                     ParseTreeNode node = new ParseTreeNode(grammaticalStructure, recursiveTokens.ToList(), this);
                     int length = node.Parse();
