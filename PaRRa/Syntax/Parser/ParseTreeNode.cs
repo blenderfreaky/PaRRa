@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PaRRa.Syntax.Lexer;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,80 +7,41 @@ using System.Text;
 
 namespace PaRRa.Parser
 {
-    public sealed class ParseTreeNode
+    public sealed class ASTNode
     {
-        public bool IsTerminal => tree == null || !tree.Any();
         public GrammaticalStructure grammaticalStructure;
         public ProductionRule rule;
+        public List<ASTNode> tree;
         public List<Token> tokens;
-        public ParseTreeNode[] tree;
-        public ParseTreeNode parent;
 
-        public ParseTreeNode(GrammaticalStructure grammaticalStructure, List<Token> tokens, ParseTreeNode parent = null)
+        internal ASTNode(GrammaticalStructure grammaticalStructure, ProductionRule rule, List<ASTNode> tree, List<Token> tokens)
         {
             this.grammaticalStructure = grammaticalStructure;
+            this.rule = rule;
+            this.tree = tree;
             this.tokens = tokens;
-            this.parent = parent;
-            tree = null;
         }
 
-        public int Parse()
+        public static void Parse(IEnumerable<Token> tokens, GrammaticalStructure start, ICollection<GrammaticalStructure> grammaticalStructures)
         {
-            if (!tokens.Any()) return 0;
+            var firstSets = new Dictionary<TokenType, List<GrammaticalStructure>>();
+            grammaticalStructures
+                .SelectMany(g => g.FirstSet.Select(first => (first, g)))
+                .ForEach(x => firstSets.GetOrCreate(x.first.TokenType).AddIfNew(x.g));
 
-            if (grammaticalStructure is Terminal terminal)
+            Stack<ASTNode> stack = new Stack<ASTNode>();
+
+            foreach (Token token in tokens)
             {
-                if (tokens.First().tokenType == terminal.TokenType)
+                if (firstSets.TryGetValue(token.tokenType, out var options) && options.Any())
                 {
-                    tokens = new List<Token>(tokens.Take(1));
-                    return 1;
+
                 }
-                return 0;
-            }
-
-            for (ParseTreeNode parent = this.parent?.parent; parent != null; parent = parent.parent)
-            {
-                if (parent.grammaticalStructure == grammaticalStructure && parent.tokens.SequenceEqual(tokens)) return 0;
-            }
-
-            List<(List<ParseTreeNode> tree, int length, ProductionRule rule)> options = new List<(List<ParseTreeNode> tree, int length, ProductionRule rule)>();
-
-            foreach (ProductionRule productionRule in grammaticalStructure.ProductionRules)
-            {
-                List<ParseTreeNode> recursiveTree = new List<ParseTreeNode>();
-                IEnumerable<Token> recursiveTokens = tokens;
-                int recursiveLength = 0;
-
-                foreach (GrammaticalStructure grammaticalStructure in productionRule.Decomposition)
+                else
                 {
-                    ParseTreeNode node = new ParseTreeNode(grammaticalStructure, recursiveTokens.ToList(), this);
-                    int length = node.Parse();
-                    if (length > 0)
-                    {
-                        recursiveTree.Add(node);
-                        recursiveTokens = recursiveTokens.Skip(length);
-                        recursiveLength += length;
-                    }
-                    else
-                    {
-                        recursiveTree = null;
-                        break;
-                    }
-                }
-
-                if (recursiveTree != null)
-                {
-                    options.Add((recursiveTree, recursiveLength, productionRule));
+                    throw new ArgumentException();
                 }
             }
-
-            if (options.Count == 0) return 0;
-            (List<ParseTreeNode> tree, int length, ProductionRule rule) max = options.First();
-            foreach ((List<ParseTreeNode> tree, int length, ProductionRule rule) option in options) if (option.length > max.length) max = option;
-            tree = max.tree.ToArray();
-            tokens = tokens.Take(max.length).ToList();
-            rule = max.rule;
-            return max.length;
         }
     }
 }

@@ -40,6 +40,6 @@ namespace PaRRa.Generator
         }
 
         public ProductionRule Build(Dictionary<string, GrammaticalStructure> grammaticalStructures) =>
-            new ProductionRule(name, _eval, decomposition.Select(x => grammaticalStructures[x]).ToArray());
+            new ProductionRule(name, decomposition.Select(x => grammaticalStructures[x]).ToArray());
     }
 }

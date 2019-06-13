@@ -1,5 +1,8 @@
 ﻿using PaRRa.Dynamic;
+using PaRRa.Parser;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PaRRa_Test
 {
@@ -143,7 +146,18 @@ namespace PaRRa_Test
 
             Language language = languageGenerator.Build();
 
-            Console.WriteLine(language.Parse("132+232/32*(123+42)-32**2;").Eval());
+            var parseTree = language.Parse("132+232/32*(123+42)-32**2;");
+            var values = PrintParseTree(parseTree, "\t").ToArray();
+            Console.WriteLine(string.Join(Environment.NewLine, values));
+            //Console.WriteLine(parseTree.Eval());
         }
+
+        public static IEnumerable<string> PrintParseTree(ParseTreeNode node, string indenter) => node.grammaticalStructure is Terminal
+            ? new string[] { $"{node.tokens[0].tokenType.name}: {node.tokens[0].text}" }
+            : 
+        new string[] {node.grammaticalStructure.name + ": " + node.rule?.name ?? "TERMINAL" }
+        .Concat(node.tree == null 
+            ? Enumerable.Empty<string>()
+            : node.tree?.SelectMany(x => PrintParseTree(x, indenter)).Select(x => indenter + x));
     }
 }

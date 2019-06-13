@@ -1,5 +1,6 @@
 ﻿using PaRRa.Generator;
 using PaRRa.Parser;
+using PaRRa.Syntax.Lexer;
 using System;
 using System.Collections.Generic;
 using System.Linq;

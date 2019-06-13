@@ -24,6 +24,6 @@ namespace PaRRa.Generator
         public GrammaticalStructure Build(string name, Dictionary<string, GrammaticalStructure> grammaticalStructures) =>
             new GrammaticalStructure(name, productionRules.Select(x => x.Build(grammaticalStructures)).ToList());
         public void BuildOnto(GrammaticalStructure structure, Dictionary<string, GrammaticalStructure> grammaticalStructures) =>
-            productionRules.Select(x => x.Build(grammaticalStructures)).ToList().ForEach(structure.AddRule);
+            productionRules.Select(x => x.Build(grammaticalStructures)).ToList().ForEach(structure.ProductionRules.Add);
     }
 }

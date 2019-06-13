@@ -21,6 +21,14 @@ namespace PaRRa.Parser
         internal GrammaticalStructure(string name = "")
         {
             this.name = name;
+            ProductionRules = new List<ProductionRule>();
         }
+
+        private List<Terminal> firstSet;
+        public virtual List<Terminal> FirstSet => firstSet 
+            ?? (firstSet = 
+            ProductionRules
+            .SelectMany(x => x.Decomposition[0].FirstSet)
+            .ToList());
     }
 }

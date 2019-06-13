@@ -2,19 +2,23 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace PaRRa.Parser
+namespace PaRRa.Syntax.Lexer
 {
-    public struct TokenType
+    public class TokenType
     {
         public string name;
         public Regex regex;
+        public string[] keywords;
+        public int precedence;
 
-        public TokenType(string name, Regex regex)
+        public TokenType(string name, Regex regex, int precedence = 0, string[] keywords = null)
         {
             this.name = name;
             this.regex = regex;
+            this.precedence = precedence;
+            this.keywords = keywords;
         }
-        public TokenType(string name, string regex) : this(name, CreateRegex(regex)) { }
+        public TokenType(string name, string regex, int precedence, string[] keywords) : this(name, CreateRegex(regex), precedence, keywords) { }
 
         public static Regex CreateRegex(string regex) => new Regex("\\G" + regex, RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -27,7 +31,7 @@ namespace PaRRa.Parser
         public static bool operator ==(TokenType lhs, TokenType rhs) => lhs.GetHashCode() == rhs.GetHashCode()
             && lhs.name == rhs.name && EqualityComparer<Regex>.Default.Equals(lhs.regex, rhs.regex);
 
-        public static bool operator !=(TokenType lhs, TokenType rhs) => lhs.GetHashCode() != rhs.GetHashCode() 
+        public static bool operator !=(TokenType lhs, TokenType rhs) => lhs.GetHashCode() != rhs.GetHashCode()
             || lhs.name != rhs.name || !EqualityComparer<Regex>.Default.Equals(lhs.regex, rhs.regex);
     }
 }
