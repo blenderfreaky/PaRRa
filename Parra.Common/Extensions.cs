@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PaRRa
+namespace Parra
 {
     internal static class Extensions
     {
@@ -14,11 +14,10 @@ namespace PaRRa
         internal static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
             where TValue : new()
         {
-            if (!dict.TryGetValue(key, out TValue val))
-            {
-                val = new TValue();
-                dict.Add(key, val);
-            }
+            if (dict.TryGetValue(key, out TValue val)) return val;
+
+            val = new TValue();
+            dict.Add(key, val);
 
             return val;
         }
@@ -33,13 +32,11 @@ namespace PaRRa
 
         internal static bool AddIfNew<T>(this ICollection<T> collection, T elem)
         {
-            if (!collection.Contains(elem))
-            {
-                collection.Add(elem);
-                return true;
-            }
+            if (collection.Contains(elem)) return false;
 
-            return false;
+            collection.Add(elem);
+
+            return true;
         }
     }
 }

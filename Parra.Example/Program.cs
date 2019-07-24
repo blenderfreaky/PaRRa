@@ -114,16 +114,16 @@ namespace PaRRa_Test
 
             languageGenerator.AddGrammaticalStructure("Start", structure => structure
                 .AddProductionRule("ExpressionTerminal", rule => rule
-					.SetDecomposition("Expression", "semicolon")
-					.SetEval(nodes => nodes[0].Eval())
+                    .SetDecomposition("Expression", "semicolon")
+                    .SetEval(nodes => nodes[0].Eval())
                 )
                 .AddProductionRule("Expression", rule => rule
-					.SetDecomposition("Expression", "semicolon", "Start")
-					.SetEval(nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1)
+                    .SetDecomposition("Expression", "semicolon", "Start")
+                    .SetEval(nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1)
                 )
                 .AddProductionRule("BlockStatementTerminal", rule => rule
-					.SetDecomposition("Expression", "Expression")
-					.SetEval(nodes =>
+                    .SetDecomposition("Expression", "Expression")
+                    .SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();
@@ -131,8 +131,8 @@ namespace PaRRa_Test
                     })
                 )
                 .AddProductionRule("BlockStatement", rule => rule
-					.SetDecomposition("Expression", "Expression", "Start")
-					.SetEval(nodes =>
+                    .SetDecomposition("Expression", "Expression", "Start")
+                    .SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();
@@ -154,9 +154,9 @@ namespace PaRRa_Test
 
         public static IEnumerable<string> PrintParseTree(ParseTreeNode node, string indenter) => node.grammaticalStructure is Terminal
             ? new string[] { $"{node.tokens[0].tokenType.name}: {node.tokens[0].text}" }
-            : 
-        new string[] {node.grammaticalStructure.name + ": " + node.rule?.name ?? "TERMINAL" }
-        .Concat(node.tree == null 
+            :
+        new string[] { node.grammaticalStructure.name + ": " + node.rule?.name ?? "TERMINAL" }
+        .Concat(node.tree == null
             ? Enumerable.Empty<string>()
             : node.tree?.SelectMany(x => PrintParseTree(x, indenter)).Select(x => indenter + x));
     }
