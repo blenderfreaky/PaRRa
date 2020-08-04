@@ -8,7 +8,7 @@ namespace PaRRa.Parser
 {
     public sealed class ParseTreeNode
     {
-        public bool IsTerminal => tree == null || !tree.Any();
+        public bool IsTerminal => tree?.Any() != true;
         public GrammaticalStructure grammaticalStructure;
         public ProductionRule rule;
         public List<Token> tokens;
@@ -23,15 +23,15 @@ namespace PaRRa.Parser
             tree = null;
         }
 
-        public object Eval() => rule.Eval(tree);
+        public object Eval(object state = null) => rule.Eval(tree, state);
 
         public int Parse()
         {
-            if (!tokens.Any()) return 0;
+            if (tokens.Count == 0) return 0;
 
             if (grammaticalStructure is Terminal terminal)
             {
-                if (tokens.First().tokenType == terminal.TokenType)
+                if (tokens[0].tokenType == terminal.TokenType)
                 {
                     tokens = new List<Token>(tokens.Take(1));
                     return 1;
@@ -76,7 +76,7 @@ namespace PaRRa.Parser
             }
 
             if (options.Count == 0) return 0;
-            (List<ParseTreeNode> tree, int length, ProductionRule rule) max = options.First();
+            (List<ParseTreeNode> tree, int length, ProductionRule rule) max = options[0];
             foreach ((List<ParseTreeNode> tree, int length, ProductionRule rule) option in options) if (option.length > max.length) max = option;
             tree = max.tree.ToArray();
             tokens = tokens.Take(max.length).ToList();

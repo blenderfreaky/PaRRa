@@ -8,7 +8,7 @@ namespace PaRRa.Parser
     {
         public GrammaticalStructure[] decomposition;
         public string name;
-        public Func<ParseTreeNode[], object> _eval;
+        public Func<ParseTreeNode[], object, object> _eval;
 
         public GrammaticalStructure this[int index]
         {
@@ -17,19 +17,19 @@ namespace PaRRa.Parser
         }
         public int Length => decomposition.Length;
 
-        public ProductionRule(string name, Func<ParseTreeNode[], object> eval, params GrammaticalStructure[] grammaticalStructures)
+        public ProductionRule(string name, Func<ParseTreeNode[], object, object> eval, params GrammaticalStructure[] grammaticalStructures)
         {
             this.decomposition = grammaticalStructures;
             this.name = name;
             _eval = eval;
         }
 
-        public object Eval(ParseTreeNode[] nodes)
+        public object Eval(ParseTreeNode[] nodes, object state = null)
         {
             if (nodes.Length != decomposition.Length) throw new ArgumentException("Input does not match pattern");
-            for  (int  i =  0; i < nodes.Length; i++) if (nodes[i].grammaticalStructure != decomposition[i]) throw new ArgumentException("Input does not match pattern");
+            for (int i = 0; i < nodes.Length; i++) if (nodes[i].grammaticalStructure != decomposition[i]) throw new ArgumentException("Input does not match pattern");
 
-            return _eval(nodes);
+            return _eval(nodes, state);
         }
 
         public IEnumerator<GrammaticalStructure> GetEnumerator() => ((IEnumerable<GrammaticalStructure>)decomposition).GetEnumerator();

@@ -22,20 +22,6 @@ namespace PaRRa.Parser
 
         public void AddRule(ProductionRule productionRule) => ProductionRules.Add(productionRule);
 
-        [Obsolete]
-        public void Add(string name, Func<ParseTreeNode[], object> eval, params GrammaticalStructure[] grammaticalStructures) => ProductionRules.Add(new ProductionRule(name, eval, grammaticalStructures.Select(x => x ?? this).ToArray()));
-        [Obsolete]
-        public void Replace(GrammaticalStructure pattern, GrammaticalStructure result)
-        {
-            foreach (ProductionRule productionRule in ProductionRules)
-            {
-                for (int i = 0; i < productionRule.Length; i++)
-                {
-                    if (productionRule[i] == pattern) productionRule[i] = result;
-                }
-            }
-        }
-
         public IEnumerator<ProductionRule> GetEnumerator() => ((IEnumerable<ProductionRule>)ProductionRules).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<ProductionRule>)ProductionRules).GetEnumerator();
 

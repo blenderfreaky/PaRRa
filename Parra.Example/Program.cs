@@ -3,9 +3,9 @@ using System;
 
 namespace PaRRa_Test
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
             var languageGenerator = new LanguageGenerator()
             .AddTokenType("identifier", "[a-zA-Z_][a-zA-Z_0-9]*")
@@ -36,7 +36,7 @@ namespace PaRRa_Test
             languageGenerator.AddGrammaticalStructure("Expression'''", structure => structure
                 .AddProductionRule("Assignment", rule => rule
                     .SetDecomposition("identifier", "assign", "Expression")
-                    .SetEval(nodes => nodes[2].Eval())
+                    .SetEval(nodes => nodes[2].Eval(1))
                 )
                 .AddProductionRule("Number", rule => rule
                     .SetDecomposition("number")
@@ -52,7 +52,6 @@ namespace PaRRa_Test
                 )
             );
 
-
             languageGenerator.AddGrammaticalStructure("Expression''", structure => structure
                 .AddProductionRule("BinaryPower", rule => rule
                      .SetDecomposition("Expression'''", "power", "Expression''")
@@ -63,7 +62,6 @@ namespace PaRRa_Test
                      .SetEval(nodes => nodes[0].Eval())
                 )
             );
-
 
             languageGenerator.AddGrammaticalStructure("Expression'", structure => structure
                 .AddProductionRule("BinaryMultiplication", rule => rule
@@ -79,7 +77,6 @@ namespace PaRRa_Test
                     .SetEval(nodes => nodes[0].Eval())
                 )
             );
-
 
             languageGenerator.AddGrammaticalStructure("Expression", structure => structure
                 .AddProductionRule("BinaryAddition", rule => rule
@@ -108,19 +105,18 @@ namespace PaRRa_Test
                 )
             );
 
-
             languageGenerator.AddGrammaticalStructure("Start", structure => structure
                 .AddProductionRule("ExpressionTerminal", rule => rule
-					.SetDecomposition("Expression", "semicolon")
-					.SetEval(nodes => nodes[0].Eval())
+                    .SetDecomposition("Expression", "semicolon")
+                    .SetEval(nodes => nodes[0].Eval())
                 )
                 .AddProductionRule("Expression", rule => rule
-					.SetDecomposition("Expression", "semicolon", "Start")
-					.SetEval(nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1)
+                    .SetDecomposition("Expression", "semicolon", "Start")
+                    .SetEval(nodes => (nodes[0].Eval(), nodes[2].Eval()).Item1)
                 )
                 .AddProductionRule("BlockStatementTerminal", rule => rule
-					.SetDecomposition("Expression", "Expression")
-					.SetEval(nodes =>
+                    .SetDecomposition("Expression", "Expression")
+                    .SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();
@@ -128,8 +124,8 @@ namespace PaRRa_Test
                     })
                 )
                 .AddProductionRule("BlockStatement", rule => rule
-					.SetDecomposition("Expression", "Expression", "Start")
-					.SetEval(nodes =>
+                    .SetDecomposition("Expression", "Expression", "Start")
+                    .SetEval(nodes =>
                     {
                         object output = null;
                         while (Convert.ToBoolean(nodes[0].Eval())) output = nodes[1].Eval();

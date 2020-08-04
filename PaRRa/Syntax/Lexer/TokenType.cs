@@ -22,12 +22,18 @@ namespace PaRRa.Parser
                    name == type.name &&
                    EqualityComparer<Regex>.Default.Equals(regex, type.regex);
 
-        public override int GetHashCode() => HashCode.Combine(name, regex);
+        public override int GetHashCode()
+        {
+            int hashCode = 11130958;
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode(name);
+            hashCode = (hashCode * -1521134295) + EqualityComparer<Regex>.Default.GetHashCode(regex);
+            return hashCode;
+        }
 
         public static bool operator ==(TokenType lhs, TokenType rhs) => lhs.GetHashCode() == rhs.GetHashCode()
             && lhs.name == rhs.name && EqualityComparer<Regex>.Default.Equals(lhs.regex, rhs.regex);
 
-        public static bool operator !=(TokenType lhs, TokenType rhs) => lhs.GetHashCode() != rhs.GetHashCode() 
+        public static bool operator !=(TokenType lhs, TokenType rhs) => lhs.GetHashCode() != rhs.GetHashCode()
             || lhs.name != rhs.name || !EqualityComparer<Regex>.Default.Equals(lhs.regex, rhs.regex);
     }
 }

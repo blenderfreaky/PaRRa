@@ -8,13 +8,14 @@ namespace PaRRa.Generator
     public sealed class ProductionRuleGenerator
     {
         internal string name;
-        internal Func<ParseTreeNode[], object> _eval;
+        internal Func<ParseTreeNode[], object, object> _eval;
         internal string[] decomposition;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "No implementation given")]
         public ProductionRuleGenerator()
         {
             name = string.Empty;
-            _eval = nodes => throw new NotImplementedException();
+            _eval = (_, __) => throw new NotImplementedException();
             decomposition = new string[0];
         }
 
@@ -25,10 +26,17 @@ namespace PaRRa.Generator
             return this;
         }
 
-        public ProductionRuleGenerator SetEval(Func<ParseTreeNode[], object> eval)
+        public ProductionRuleGenerator SetEval(Func<ParseTreeNode[], object, object> eval)
         {
             _eval = eval;
-            
+
+            return this;
+        }
+
+        public ProductionRuleGenerator SetEval(Func<ParseTreeNode[], object> eval)
+        {
+            _eval = (nodes, _) => eval(nodes);
+
             return this;
         }
 
